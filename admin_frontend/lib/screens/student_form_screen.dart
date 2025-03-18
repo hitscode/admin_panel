@@ -4,16 +4,16 @@ import 'package:dio/dio.dart';
 class StudentFormScreen extends StatefulWidget {
   final Map<String, dynamic>? student; // If null, it's a new student
 
-  const StudentFormScreen({super.key, this.student});
+  const StudentFormScreen({Key? key, this.student}) : super(key: key);
   @override
   _StudentFormScreenState createState() => _StudentFormScreenState();
 }
 
 class _StudentFormScreenState extends State<StudentFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  final String _baseUrl = "http://127.0.0.1:8000";
+  final String _baseUrl = "http://192.168.198.214:8000";
 
-  // Controllers for student fields (initialize with existing data if available)
+  // Controllers for student fields
   late TextEditingController _enrollmentController;
   late TextEditingController _nameController;
   late TextEditingController _dobController;
@@ -25,7 +25,6 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
   late TextEditingController _instituteController;
   late TextEditingController _profilePhotoController;
   late TextEditingController _emergencyNoController;
-  late TextEditingController _counselorController;
   late TextEditingController _counselorPhotoController;
   late TextEditingController _counselorNameController;
   late TextEditingController _counselorEmailController;
@@ -55,10 +54,6 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
     _emergencyNoController = TextEditingController(
       text: student?['emergency_no'] ?? '',
     );
-    _counselorController = TextEditingController(
-      text: student?['counselor'] ?? '',
-    );
-    // Counselor details are nested
     final counselorDetails = student?['counselor_details'] ?? {};
     _counselorPhotoController = TextEditingController(
       text: counselorDetails['photo'] ?? '',
@@ -90,7 +85,6 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
     _instituteController.dispose();
     _profilePhotoController.dispose();
     _emergencyNoController.dispose();
-    _counselorController.dispose();
     _counselorPhotoController.dispose();
     _counselorNameController.dispose();
     _counselorEmailController.dispose();
@@ -114,7 +108,6 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
         "institute": _instituteController.text,
         "profile_photo": _profilePhotoController.text,
         "emergency_no": _emergencyNoController.text,
-        "counselor": _counselorController.text,
         "counselor_details": {
           "photo": _counselorPhotoController.text,
           "name": _counselorNameController.text,
@@ -148,13 +141,19 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
     TextEditingController controller, {
     bool isEmail = false,
   }) {
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(labelText: label),
-      validator:
-          (value) =>
-              value == null || value.isEmpty ? "Please enter $label" : null,
-      keyboardType: isEmail ? TextInputType.emailAddress : TextInputType.text,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+        ),
+        validator:
+            (value) =>
+                value == null || value.isEmpty ? "Please enter $label" : null,
+        keyboardType: isEmail ? TextInputType.emailAddress : TextInputType.text,
+      ),
     );
   }
 
@@ -163,47 +162,165 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
     final isEditing = widget.student != null;
     return Scaffold(
       appBar: AppBar(title: Text(isEditing ? "Edit Student" : "Add Student")),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              _buildTextField("Enrollment No", _enrollmentController),
-              _buildTextField("Name", _nameController),
-              _buildTextField("DOB (YYYY-MM-DD)", _dobController),
-              _buildTextField("Mobile", _mobileController),
-              _buildTextField("Email", _emailController, isEmail: true),
-              _buildTextField("Address", _addressController),
-              _buildTextField("Course", _courseController),
-              _buildTextField("Branch", _branchController),
-              _buildTextField("Institute", _instituteController),
-              _buildTextField("Profile Photo URL", _profilePhotoController),
-              _buildTextField("Emergency No", _emergencyNoController),
-              _buildTextField("Counselor", _counselorController),
-              const SizedBox(height: 20),
-              const Text(
-                "Counselor Details",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              _buildTextField("Counselor Photo URL", _counselorPhotoController),
-              _buildTextField("Counselor Name", _counselorNameController),
-              _buildTextField(
-                "Counselor Email",
-                _counselorEmailController,
-                isEmail: true,
-              ),
-              _buildTextField("Counselor Mobile", _counselorMobileController),
-              _buildTextField(
-                "Counselor Institute",
-                _counselorInstituteController,
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: _submitForm,
-                child: Text(isEditing ? "Update Student" : "Add Student"),
-              ),
-            ],
+      body: SafeArea(
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFFF5F5F5), Color(0xFFE0E0E0)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          child: Center(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: IntrinsicHeight(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Center(
+                          child: SizedBox(
+                            width: 600, // Adjust the width as desired
+                            child: Card(
+                              elevation: 6,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(24.0),
+                                child: Form(
+                                  key: _formKey,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      const Center(
+                                        child: Text(
+                                          "Student Form",
+                                          style: TextStyle(
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 20),
+                                      _buildTextField(
+                                        "Enrollment No",
+                                        _enrollmentController,
+                                      ),
+                                      _buildTextField("Name", _nameController),
+                                      _buildTextField(
+                                        "DOB (YYYY-MM-DD)",
+                                        _dobController,
+                                      ),
+                                      _buildTextField(
+                                        "Mobile",
+                                        _mobileController,
+                                      ),
+                                      _buildTextField(
+                                        "Email",
+                                        _emailController,
+                                        isEmail: true,
+                                      ),
+                                      _buildTextField(
+                                        "Address",
+                                        _addressController,
+                                      ),
+                                      _buildTextField(
+                                        "Course",
+                                        _courseController,
+                                      ),
+                                      _buildTextField(
+                                        "Branch",
+                                        _branchController,
+                                      ),
+                                      _buildTextField(
+                                        "Institute",
+                                        _instituteController,
+                                      ),
+                                      _buildTextField(
+                                        "Profile Photo URL",
+                                        _profilePhotoController,
+                                      ),
+                                      _buildTextField(
+                                        "Emergency No",
+                                        _emergencyNoController,
+                                      ),
+                                      const SizedBox(height: 20),
+                                      const Text(
+                                        "Counselor Details",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                      _buildTextField(
+                                        "Counselor Photo URL",
+                                        _counselorPhotoController,
+                                      ),
+                                      _buildTextField(
+                                        "Counselor Name",
+                                        _counselorNameController,
+                                      ),
+                                      _buildTextField(
+                                        "Counselor Email",
+                                        _counselorEmailController,
+                                        isEmail: true,
+                                      ),
+                                      _buildTextField(
+                                        "Counselor Mobile",
+                                        _counselorMobileController,
+                                      ),
+                                      _buildTextField(
+                                        "Counselor Institute",
+                                        _counselorInstituteController,
+                                      ),
+                                      const SizedBox(height: 30),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: ElevatedButton(
+                                          onPressed: _submitForm,
+                                          style: ElevatedButton.styleFrom(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 16,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            backgroundColor: Colors.blue,
+                                          ),
+                                          child: Text(
+                                            isEditing
+                                                ? "Update Student"
+                                                : "Add Student",
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),

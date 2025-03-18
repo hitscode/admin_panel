@@ -2,10 +2,16 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthService {
-  final Dio _dio = Dio();
+  final Dio _dio = Dio(
+    BaseOptions(
+      connectTimeout: Duration(seconds: 10),
+      receiveTimeout: Duration(seconds: 10),
+    ),
+  );
+
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   final String _baseUrl =
-      "http://192.168.110.214:8000"; // Update with your FastAPI URL
+      "http://192.168.198.214:8000"; // Update with your FastAPI URL
 
   // Login Function
   Future<bool> login(String username, String password) async {

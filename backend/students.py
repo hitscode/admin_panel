@@ -27,7 +27,7 @@ class Student(BaseModel):
     institute: str
     profile_photo: str
     emergency_no: str
-    counselor: str
+    # counselor: str
     counselor_details: CounselorDetails
 
 # Helper function to convert MongoDB document to dictionary
@@ -45,7 +45,7 @@ def student_helper(student: Dict[str, Any]) -> Dict[str, Any]:
         "institute": student["institute"],
         "profile_photo": student["profile_photo"],
         "emergency_no": student["emergency_no"],
-        "counselor": student["counselor"],
+        # "counselor": student["counselor"],
         "counselor_details": student["counselor_details"],
     }
 

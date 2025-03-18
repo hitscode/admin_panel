@@ -34,69 +34,123 @@ class _StudentListScreenState extends State<StudentListScreen> {
     }
   }
 
-  // Delete a student
   Future<void> _deleteStudent(String id) async {
     try {
       await Dio().delete("$_baseUrl/students/$id");
-      _fetchStudents(); // Refresh the list after deletion
+      _fetchStudents();
     } catch (e) {
       print("Error deleting student: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Error deleting student"),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
+  }
+
+  Widget _buildStudentItem(dynamic student) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(8),
+        leading: CircleAvatar(
+          backgroundColor: Colors.blue[100],
+          radius: 16,
+          child: Text(
+            (student['name'] != null && student['name'].toString().isNotEmpty)
+                ? student['name'][0]
+                : "?",
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        title: Text(
+          student['name'] ?? "No Name",
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          "Enrollment: ${student['enrollment_no']}\nCourse: ${student['course']}",
+          style: const TextStyle(fontSize: 10),
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.delete, color: Colors.red, size: 16),
+          onPressed: () {
+            _deleteStudent(student['id']);
+          },
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => StudentFormScreen(student: student),
+            ),
+          ).then((value) {
+            _fetchStudents();
+          });
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Students")),
-      body:
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : RefreshIndicator(
-                onRefresh: _fetchStudents,
-                child: ListView.builder(
-                  itemCount: _students.length,
-                  itemBuilder: (context, index) {
-                    final student = _students[index];
-                    return ListTile(
-                      title: Text(student['name']),
-                      subtitle: Text(
-                        "Enrollment: ${student['enrollment_no']}\nCourse: ${student['course']}",
-                      ),
-                      isThreeLine: true,
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          _deleteStudent(student['id']);
-                        },
-                      ),
-                      onTap: () {
-                        // Navigate to the student form for update (passing current student data)
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) =>
-                                    StudentFormScreen(student: student),
-                          ),
-                        ).then((value) {
-                          _fetchStudents(); // Refresh after returning from the form
-                        });
-                      },
-                    );
-                  },
-                ),
-              ),
+      appBar: AppBar(
+        title: const Text("Students", style: TextStyle(fontSize: 16)),
+        centerTitle: true,
+        elevation: 2,
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFf5f5f5), Color(0xFFe0e0e0)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SafeArea(
+          child:
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : RefreshIndicator(
+                    onRefresh: _fetchStudents,
+                    child:
+                        _students.isNotEmpty
+                            ? ListView.builder(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              itemCount: _students.length,
+                              itemBuilder: (context, index) {
+                                final student = _students[index];
+                                return _buildStudentItem(student);
+                              },
+                            )
+                            : Center(
+                              child: Text(
+                                "No students found",
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            ),
+                  ),
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Navigate to the student form for creating a new student
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const StudentFormScreen()),
           ).then((value) {
-            _fetchStudents(); // Refresh after returning from the form
+            _fetchStudents();
           });
         },
-        child: const Icon(Icons.add),
+        backgroundColor: Colors.blue,
+        child: const Icon(Icons.add, size: 16),
       ),
     );
   }

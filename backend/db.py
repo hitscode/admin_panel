@@ -36,7 +36,7 @@ def initialize_admin():
         Password: amtics123
     """
     admin_username = "admin"
-    admin_password = "amtics123"
+    admin_password = "admin"
     
     existing_admin = admin_collection.find_one({"username": admin_username})
     if not existing_admin:

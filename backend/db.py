@@ -4,8 +4,7 @@ from passlib.context import CryptContext
 
 # MongoDB Atlas connection string
 MONGODB_CONNECTION_STRING = (
-    "mongodb+srv://nfcadmin:nfcadmin123@cluster0.zqs29.mongodb.net/"
-    "?retryWrites=true&w=majority&appName=Cluster0"
+    "mongodb+srv://nfcadmin:nfcadmin123@cluster0.zqs29.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 )
 
 # Create the MongoClient with certificate verification

@@ -11,7 +11,7 @@ class AuthService {
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   final String _baseUrl =
-      "http://192.168.198.214:8000"; // Update with your FastAPI URL
+      "http://192.168.190.214:8000"; // Update with your FastAPI URL
 
   // Login Function
   Future<bool> login(String username, String password) async {

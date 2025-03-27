@@ -4,8 +4,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class AuthService {
   final Dio _dio = Dio(
     BaseOptions(
-      connectTimeout: Duration(seconds: 10),
-      receiveTimeout: Duration(seconds: 10),
+      connectTimeout: Duration(seconds: 20),
+      receiveTimeout: Duration(seconds: 20),
     ),
   );
 
